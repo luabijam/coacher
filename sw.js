@@ -1,16 +1,17 @@
 /* COACHER service worker — bump VERSION when deploying asset changes. */
-const VERSION = 'coacher-v1';
+const VERSION = 'coacher-v2';
 const BASE = new URL('./', self.location).href;
 const INDEX = new URL('index.html', BASE).href;
 const ASSETS = [
   INDEX,
-  new URL('styles.css', BASE).href,
-  new URL('app.js', BASE).href,
+  new URL('styles.css?v=3', BASE).href,
+  new URL('app.js?v=3', BASE).href,
   new URL('manifest.webmanifest', BASE).href,
   new URL('assets/favicon.svg', BASE).href,
   new URL('assets/icon-192.png', BASE).href,
   new URL('assets/icon-512.png', BASE).href,
   new URL('assets/icon-maskable-512.png', BASE).href,
+  new URL('assets/apple-touch-icon.png', BASE).href,
 ];
 
 self.addEventListener('install', (event) => {
@@ -58,18 +59,20 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets: cache first, then network.
+  // Static assets: network first so deployed updates are picked up; cache fallback for offline.
   event.respondWith(
     (async () => {
-      const cached = await caches.match(request);
-      if (cached) return cached;
-
-      const response = await fetch(request);
-      if (response.ok) {
-        const copy = response.clone();
-        caches.open(VERSION).then((cache) => cache.put(request, copy));
+      try {
+        const response = await fetch(request);
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(VERSION).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      } catch (error) {
+        const cached = await caches.match(request);
+        return cached || new Response('', { status: 504 });
       }
-      return response;
     })()
   );
 });

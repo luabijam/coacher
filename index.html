@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
   <a class="skip-link" href="#trainer">跳到训练器</a>
@@ -32,19 +32,29 @@
         <a href="#method">原理</a>
         <a href="#history">记录</a>
       </nav>
-      <button class="btn btn-small btn-outline btn-install" id="installBtn" type="button" hidden>
+      <button class="btn btn-small btn-outline btn-install" id="installBtn" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 3v11"/>
           <path d="m8 10 4 4 4-4"/>
           <path d="M5 17v3h14v-3"/>
         </svg>
-        <span class="install-label">安装 App</span>
+        <span class="install-label">安装</span>
       </button>
       <a class="btn btn-small btn-outline header-cta" href="#trainer">开始训练</a>
     </div>
   </header>
 
   <main id="top">
+    <div class="browser-notice" id="browserNotice" hidden>
+      <div class="browser-notice-inner">
+        <p><strong>提示：</strong>当前可能是微信 / QQ 等内置浏览器，无法直接安装。请用 Chrome 打开本页。</p>
+        <div class="notice-actions">
+          <button class="btn btn-small btn-outline" id="browserNoticeBtn" type="button">查看步骤</button>
+          <button class="notice-close" id="browserNoticeClose" type="button" aria-label="关闭提示">×</button>
+        </div>
+      </div>
+    </div>
+
     <section class="hero">
       <div class="hero-inner">
         <div class="hero-copy">
@@ -349,6 +359,35 @@
     </div>
   </footer>
 
+  <div class="modal" id="installModal" hidden>
+    <div class="modal-backdrop" data-install-close></div>
+    <div class="modal-card install-card" role="dialog" aria-modal="true" aria-labelledby="installTitle">
+      <button class="modal-close" id="installClose" type="button" aria-label="关闭安装说明">×</button>
+      <p class="eyebrow">INSTALL TO HOME SCREEN</p>
+      <h3 id="installTitle">安装到手机主屏幕</h3>
+      <p class="install-lede">安装后是全屏 App，首次加载后断网也能用。</p>
+      <ol class="install-steps">
+        <li>
+          <span>01</span>
+          <div><strong>用 Chrome 打开</strong><a id="installUrl" href="https://luabijam.github.io/coacher/">luabijam.github.io/coacher/</a></div>
+        </li>
+        <li>
+          <span>02</span>
+          <div><strong>点 Chrome 右上角 ⋮</strong>选择「安装应用」或「添加到主屏幕」。</div>
+        </li>
+        <li>
+          <span>03</span>
+          <div><strong>确认安装</strong>桌面或应用抽屉会出现 COACHER 图标。</div>
+        </li>
+      </ol>
+      <p class="install-note">安卓用 Chrome；iPhone 用 Safari → 分享 →「添加到主屏幕」。微信 / QQ 里请先点右上角 ⋯ →「在浏览器打开」。</p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="copyLinkBtn" type="button">复制链接</button>
+        <button class="btn btn-ghost" id="installCloseBtn" type="button">知道了</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal" id="summaryModal" hidden>
     <div class="modal-backdrop" data-close></div>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="summaryTitle">
@@ -371,6 +410,6 @@
     <div class="noscript">训练器需要开启 JavaScript 才能运行。</div>
   </noscript>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

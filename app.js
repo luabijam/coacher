@@ -207,6 +207,14 @@
   const voiceToggle = $('#voiceToggle');
   const fullscreenBtn = $('#fullscreenBtn');
   const installBtn = $('#installBtn');
+  const installModal = $('#installModal');
+  const installClose = $('#installClose');
+  const installCloseBtn = $('#installCloseBtn');
+  const installUrl = $('#installUrl');
+  const copyLinkBtn = $('#copyLinkBtn');
+  const browserNotice = $('#browserNotice');
+  const browserNoticeBtn = $('#browserNoticeBtn');
+  const browserNoticeClose = $('#browserNoticeClose');
 
   const legend = $('#legend');
   const legendTag = $('#legendTag');
@@ -889,35 +897,99 @@
     || window.navigator.standalone === true;
   let deferredInstallPrompt = null;
 
+  function openInstallHelp() {
+    if (!summaryModal.hidden) closeSummary();
+
+    installUrl.textContent = `${location.host}${location.pathname}`;
+    installUrl.href = location.href;
+    installModal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    installClose.focus({ preventScroll: true });
+  }
+
+  function closeInstallHelp() {
+    installModal.hidden = true;
+    document.body.style.overflow = '';
+    startBtn.focus({ preventScroll: true });
+  }
+
+  async function copyInstallLink() {
+    const link = location.href;
+
+    try {
+      await navigator.clipboard.writeText(link);
+      showToast('链接已复制');
+      return;
+    } catch (error) {
+      /* fall back to execCommand */
+    }
+
+    try {
+      const input = document.createElement('input');
+      input.value = link;
+      input.setAttribute('readonly', '');
+      input.style.position = 'fixed';
+      input.style.opacity = '0';
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      input.remove();
+      showToast('链接已复制');
+    } catch (error) {
+      showToast('复制失败，请手动选择链接');
+    }
+  }
+
   if (installBtn) {
-    if (standaloneMode) installBtn.hidden = true;
+    installBtn.hidden = standaloneMode;
 
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
       deferredInstallPrompt = event;
-      installBtn.hidden = false;
     });
 
     installBtn.addEventListener('click', async () => {
-      if (!deferredInstallPrompt) return;
+      const hasActivation = !navigator.userActivation || navigator.userActivation.isActive;
+
+      if (!deferredInstallPrompt || !hasActivation) {
+        openInstallHelp();
+        return;
+      }
 
       const promptEvent = deferredInstallPrompt;
       deferredInstallPrompt = null;
-      installBtn.hidden = true;
-      promptEvent.prompt();
 
       try {
+        await promptEvent.prompt();
         const choice = await promptEvent.userChoice;
         if (choice.outcome === 'accepted') showToast('正在安装 COACHER…');
       } catch (error) {
-        /* the prompt can be dismissed by the browser */
+        openInstallHelp();
       }
     });
 
     window.addEventListener('appinstalled', () => {
       deferredInstallPrompt = null;
       installBtn.hidden = true;
+      browserNotice.hidden = true;
       showToast('已安装到主屏幕');
+    });
+  }
+
+  if (installModal) {
+    installClose.addEventListener('click', closeInstallHelp);
+    installCloseBtn.addEventListener('click', closeInstallHelp);
+    $('[data-install-close]', installModal).addEventListener('click', closeInstallHelp);
+    copyLinkBtn.addEventListener('click', copyInstallLink);
+  }
+
+  const inAppBrowser = /MicroMessenger|QQ\/|Weibo|AlipayClient|aweme|BytedanceWebview|Douyin|Baidu|UCBrowser|MQQBrowser/i.test(navigator.userAgent);
+
+  if (browserNotice && inAppBrowser && !standaloneMode) {
+    browserNotice.hidden = false;
+    browserNoticeBtn.addEventListener('click', openInstallHelp);
+    browserNoticeClose.addEventListener('click', () => {
+      browserNotice.hidden = true;
     });
   }
 
@@ -1066,6 +1138,11 @@
   });
 
   document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !installModal.hidden) {
+      closeInstallHelp();
+      return;
+    }
+
     if (event.key === 'Escape' && !summaryModal.hidden) {
       closeSummary();
       return;
@@ -1080,7 +1157,7 @@
     }
 
     event.preventDefault();
-    if (summaryModal.hidden) startSession();
+    if (summaryModal.hidden && installModal.hidden) startSession();
   });
 
   /* ---------- boot ---------- */

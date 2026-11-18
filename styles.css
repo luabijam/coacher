@@ -387,6 +387,62 @@ h2 {
   line-height: 1.7;
 }
 
+/* ---------- browser notice ---------- */
+
+.browser-notice {
+  border-bottom: 1px solid var(--line-gold);
+  background: rgba(214, 179, 106, 0.07);
+}
+
+.browser-notice-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 10px 32px;
+}
+
+.browser-notice p {
+  flex: 1 1 320px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.browser-notice strong {
+  color: var(--gold-bright);
+}
+
+.notice-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.notice-close {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.notice-close:hover {
+  border-color: var(--line-gold);
+  color: var(--text);
+}
+
 /* ---------- hero ---------- */
 
 .hero {
@@ -1854,6 +1910,77 @@ h2 {
   letter-spacing: -0.03em;
 }
 
+.install-card {
+  width: min(560px, 100%);
+}
+
+.install-lede {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.install-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.install-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.install-steps li > span {
+  flex-shrink: 0;
+  padding-top: 2px;
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.install-steps div {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.install-steps strong {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.install-steps a {
+  display: inline-block;
+  max-width: 100%;
+  color: var(--gold-bright);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  word-break: break-all;
+}
+
+.install-note {
+  margin-top: 22px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted-2);
+  font-size: 11px;
+  line-height: 1.75;
+}
+
 .summary-hero {
   display: flex;
   align-items: baseline;
@@ -2016,15 +2143,6 @@ h2 {
     margin-left: auto;
   }
 
-  .btn-install {
-    width: 38px;
-    padding: 0;
-  }
-
-  .btn-install .install-label {
-    display: none;
-  }
-
   .drills-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2057,6 +2175,14 @@ h2 {
 
   .section {
     padding: 76px 20px;
+  }
+
+  .browser-notice-inner {
+    padding: 10px 20px;
+  }
+
+  .browser-notice p {
+    font-size: 11px;
   }
 
   .hero {
@@ -2259,6 +2385,17 @@ h2 {
   }
 
   .segmented-label {
+    display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .btn-install {
+    width: 38px;
+    padding: 0;
+  }
+
+  .btn-install .install-label {
     display: none;
   }
 }
