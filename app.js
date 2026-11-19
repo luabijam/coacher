@@ -194,9 +194,12 @@
   const stageModeLabel = $('#stageModeLabel');
   const stagePaceLabel = $('#stagePaceLabel');
   const progressFill = $('#progressFill');
+  const progressTrack = progressFill.parentElement;
   const signalCount = $('#signalCount');
   const countdown = $('#countdown');
   const countdownValue = $('#countdownValue');
+  const stagePauseBtn = $('#stagePauseBtn');
+  const stageStopBtn = $('#stageStopBtn');
 
   const startBtn = $('#startBtn');
   const stopBtn = $('#stopBtn');
@@ -264,6 +267,7 @@
 
   let audioCtx = null;
   let toastTimer = null;
+  let focusModeActive = false;
   const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
 
   /* ---------- rendering ---------- */
@@ -384,10 +388,19 @@
   }
 
   function updateTimeUI() {
+    const unlimited = state.duration === 0;
     const durationMs = state.duration * 1000;
-    const ratio = durationMs > 0 ? Math.min(1, state.elapsed / durationMs) : 0;
-    progressFill.style.width = `${ratio * 100}%`;
-    stageClock.textContent = formatClock(durationMs - state.elapsed);
+
+    progressTrack.classList.toggle('is-unlimited', unlimited);
+
+    if (unlimited) {
+      stageClock.textContent = '∞';
+    } else {
+      const ratio = Math.min(1, state.elapsed / durationMs);
+      progressFill.style.width = `${ratio * 100}%`;
+      stageClock.textContent = formatClock(durationMs - state.elapsed);
+    }
+
     liveElapsed.innerHTML = `${(state.elapsed / 1000).toFixed(1)}<span>s</span>`;
   }
 
@@ -409,7 +422,7 @@
     stagePaceLabel.textContent = `${PACES[state.pace].name} · ${formatInterval(PACES[state.pace].interval)}s`;
     idleHint.textContent = MODES[state.mode].idle;
     if (state.phase === 'idle') {
-      stageClock.textContent = formatClock(state.duration * 1000);
+      stageClock.textContent = state.duration === 0 ? '∞' : formatClock(state.duration * 1000);
     }
   }
 
@@ -448,6 +461,7 @@
     $$('#paceControl button, #durationControl button').forEach((button) => { button.disabled = locked; });
 
     updateLiveTag();
+    updateStageSessionButtons();
   }
 
   /* ---------- audio / voice ---------- */
@@ -602,10 +616,83 @@
     signalSlot.innerHTML = '';
     signalSlot.classList.remove('is-dimmed');
     progressFill.style.width = '0%';
+    progressTrack.classList.toggle('is-unlimited', state.duration === 0);
 
     updateStageLabels();
     updateMetrics();
     setControls();
+  }
+
+  /* ---------- fullscreen / focus ---------- */
+
+  function isStageFullscreen() {
+    return (document.fullscreenElement || document.webkitFullscreenElement) === stage;
+  }
+
+  function updateStageSessionButtons() {
+    const active = state.phase === 'running' || state.phase === 'paused';
+    stagePauseBtn.hidden = !active;
+    stagePauseBtn.classList.toggle('is-paused', state.phase === 'paused');
+    stagePauseBtn.setAttribute('aria-label', state.phase === 'paused' ? '继续' : '暂停');
+    stageStopBtn.hidden = !(active || state.phase === 'countdown');
+  }
+
+  function enterCssFocus() {
+    if (isStageFullscreen()) return;
+
+    focusModeActive = true;
+    stage.classList.add('is-focus');
+    document.body.classList.add('is-stage-focus');
+    syncFullscreenUI();
+  }
+
+  function enterStageFocus() {
+    if (isStageFullscreen() || focusModeActive) return;
+
+    const request = stage.requestFullscreen || stage.webkitRequestFullscreen;
+    if (!request) {
+      enterCssFocus();
+      return;
+    }
+
+    try {
+      const result = request.call(stage);
+      if (result && typeof result.catch === 'function') {
+        result.catch(() => enterCssFocus());
+      } else {
+        setTimeout(() => {
+          if (!isStageFullscreen()) enterCssFocus();
+        }, 400);
+      }
+    } catch (error) {
+      enterCssFocus();
+    }
+  }
+
+  function exitStageFocus() {
+    if (isStageFullscreen()) {
+      const exit = document.exitFullscreen || document.webkitExitFullscreen;
+      if (exit) {
+        try {
+          const result = exit.call(document);
+          if (result && result.catch) result.catch(() => {});
+        } catch (error) {
+          /* ignore */
+        }
+      }
+    }
+
+    if (focusModeActive) {
+      focusModeActive = false;
+      stage.classList.remove('is-focus');
+      document.body.classList.remove('is-stage-focus');
+      syncFullscreenUI();
+    }
+  }
+
+  function shouldAutoExpand() {
+    return window.matchMedia('(max-width: 900px)').matches
+      || window.matchMedia('(pointer: coarse)').matches;
   }
 
   function startSession() {
@@ -618,6 +705,8 @@
       return;
     }
     if (state.phase === 'countdown') return;
+
+    if (shouldAutoExpand()) enterStageFocus();
 
     resetStage();
     state.phase = 'countdown';
@@ -675,9 +764,10 @@
     if (delta > 500) delta = 500;
 
     state.elapsed += delta;
+    const unlimited = state.duration === 0;
     const durationMs = state.duration * 1000;
 
-    if (state.elapsed >= durationMs) {
+    if (!unlimited && state.elapsed >= durationMs) {
       state.elapsed = durationMs;
       updateTimeUI();
       finishSession();
@@ -737,17 +827,7 @@
 
     if (state.voice && canSpeak) window.speechSynthesis.cancel();
 
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-      const exit = document.exitFullscreen || document.webkitExitFullscreen;
-      if (exit) {
-        try {
-          const result = exit.call(document);
-          if (result && result.catch) result.catch(() => {});
-        } catch (error) {
-          /* ignore */
-        }
-      }
-    }
+    exitStageFocus();
 
     saveHistory();
     openSummary();
@@ -756,6 +836,7 @@
   function stopSession() {
     if (state.phase === 'countdown') {
       resetStage();
+      exitStageFocus();
       return;
     }
     if (state.phase === 'running' || state.phase === 'paused') {
@@ -804,6 +885,7 @@
       <span>${MODES[state.mode].name}</span>
       <span>${PACES[state.pace].name} · ${formatInterval(PACES[state.pace].interval)}s</span>
       <span>${(state.elapsed / 1000).toFixed(1)} 秒</span>
+      ${state.duration === 0 ? '<span>无限 · 手动结束</span>' : ''}
     `;
 
     const markup = distributionMarkup(state.counts);
@@ -998,8 +1080,15 @@
   startBtn.addEventListener('click', startSession);
   stopBtn.addEventListener('click', stopSession);
 
+  stagePauseBtn.addEventListener('click', () => {
+    if (state.phase === 'running') pauseSession();
+    else if (state.phase === 'paused') resumeSession();
+  });
+
+  stageStopBtn.addEventListener('click', stopSession);
+
   stage.addEventListener('click', (event) => {
-    if (event.target.closest('.stage-fs')) return;
+    if (event.target.closest('.stage-fs, .stage-stop')) return;
     if (state.phase === 'idle' || state.phase === 'done') startSession();
   });
 
@@ -1047,39 +1136,23 @@
   });
 
   fullscreenBtn.addEventListener('click', () => {
-    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
-
-    if (!fullscreenElement) {
-      const request = stage.requestFullscreen || stage.webkitRequestFullscreen;
-      if (!request) {
-        showToast('当前浏览器不支持全屏');
-        return;
-      }
-      try {
-        const result = request.call(stage);
-        if (result && result.catch) {
-          result.catch(() => showToast('全屏请求被浏览器拦截'));
-        }
-      } catch (error) {
-        showToast('当前浏览器不支持全屏');
-      }
-    } else {
-      const exit = document.exitFullscreen || document.webkitExitFullscreen;
-      if (exit) {
-        try {
-          const result = exit.call(document);
-          if (result && result.catch) result.catch(() => {});
-        } catch (error) {
-          /* ignore */
-        }
-      }
-    }
+    if (isStageFullscreen() || focusModeActive) exitStageFocus();
+    else enterStageFocus();
   });
 
   function syncFullscreenUI() {
-    const isFullscreen = (document.fullscreenElement || document.webkitFullscreenElement) === stage;
-    fullscreenBtn.setAttribute('aria-label', isFullscreen ? '退出全屏' : '全屏显示信号');
-    fullscreenBtn.title = isFullscreen ? '退出全屏' : '全屏显示信号';
+    const isFullscreen = isStageFullscreen();
+
+    if (isFullscreen && focusModeActive) {
+      focusModeActive = false;
+      stage.classList.remove('is-focus');
+      document.body.classList.remove('is-stage-focus');
+    }
+
+    const expanded = isFullscreen || focusModeActive;
+    fullscreenBtn.setAttribute('aria-label', expanded ? '退出全屏' : '全屏显示信号');
+    fullscreenBtn.title = expanded ? '退出全屏' : '全屏显示信号';
+    updateStageSessionButtons();
   }
 
   document.addEventListener('fullscreenchange', syncFullscreenUI);
@@ -1148,6 +1221,11 @@
       return;
     }
 
+    if (event.key === 'Escape' && focusModeActive) {
+      exitStageFocus();
+      return;
+    }
+
     if (event.code !== 'Space') return;
 
     const target = event.target;
@@ -1175,5 +1253,6 @@
   syncDurationUI();
   updateStageLabels();
   resetStage();
+  syncFullscreenUI();
   renderHistory();
 })();

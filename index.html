@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
   <a class="skip-link" href="#trainer">跳到训练器</a>
@@ -97,7 +97,7 @@
       <div class="section-head">
         <p class="eyebrow">LIVE DRILL</p>
         <h2>信号训练台</h2>
-        <p class="section-lede">选一个模式，把手机放在场边，按下开始。信号每 0.85–3 秒出现一次，按图例完成动作。先做对，再做快。</p>
+        <p class="section-lede">选一个模式，把手机放在场边，按下开始。手机上会自动全屏，信号每 0.85–3 秒出现一次，按图例完成动作。先做对，再做快。</p>
       </div>
 
       <div class="trainer-shell">
@@ -129,6 +129,14 @@
                 <span id="stageModeLabel">数字 · 奇偶</span>
                 <div class="stage-meta-right">
                   <span class="stage-clock" id="stageClock">01:00</span>
+                  <button class="stage-fs stage-pause" id="stagePauseBtn" type="button" aria-label="暂停" hidden>
+                    <svg class="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                      <path d="M9 5v14M15 5v14"/>
+                    </svg>
+                    <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M8 5l11 7-11 7V5z"/>
+                    </svg>
+                  </button>
                   <button class="stage-fs" id="fullscreenBtn" type="button" aria-label="全屏显示信号" title="全屏显示信号">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/>
@@ -150,7 +158,10 @@
 
               <div class="stage-footer">
                 <span><b id="signalCount">0</b> 个信号</span>
-                <span id="stagePaceLabel">标准 · 2.0s</span>
+                <div class="stage-footer-right">
+                  <span id="stagePaceLabel">标准 · 2.0s</span>
+                  <button class="stage-stop" id="stageStopBtn" type="button" hidden>结束</button>
+                </div>
               </div>
 
               <div class="countdown" id="countdown" hidden aria-hidden="true">
@@ -174,10 +185,10 @@
                 </div>
                 <div class="segmented" id="durationControl" role="group" aria-label="时长">
                   <span class="segmented-label">时长</span>
-                  <button type="button" data-duration="30" aria-pressed="false">30s</button>
                   <button type="button" data-duration="60" class="is-active" aria-pressed="true">60s</button>
-                  <button type="button" data-duration="90" aria-pressed="false">90s</button>
                   <button type="button" data-duration="120" aria-pressed="false">120s</button>
+                  <button type="button" data-duration="300" aria-pressed="false">300s</button>
+                  <button type="button" data-duration="0" aria-pressed="false">无限</button>
                 </div>
               </div>
 
@@ -274,19 +285,19 @@
           <button class="drill-load" type="button">载入训练 <span aria-hidden="true">→</span></button>
         </article>
 
-        <article class="drill-card" data-preset data-mode="math" data-pace="normal" data-duration="60">
+        <article class="drill-card" data-preset data-mode="math" data-pace="normal" data-duration="120">
           <span class="drill-top"><span>05 / MATH</span><span>心算</span></span>
           <h3>心算阅读</h3>
           <p>两个数字相加，先算再动：3 的倍数背后，偶数急停投篮，奇数变向。脑子先累，手才会快。</p>
-          <span class="drill-meta"><span>标准 2.0s</span><span>60s</span><span>两数之和</span></span>
+          <span class="drill-meta"><span>标准 2.0s</span><span>120s</span><span>两数之和</span></span>
           <button class="drill-load" type="button">载入训练 <span aria-hidden="true">→</span></button>
         </article>
 
-        <article class="drill-card" data-preset data-mode="mix" data-pace="pro" data-duration="30">
+        <article class="drill-card" data-preset data-mode="mix" data-pace="pro" data-duration="60">
           <span class="drill-top"><span>06 / CHAOS</span><span>混合</span></span>
           <h3>混沌过载</h3>
           <p>数字、手势、颜色、方向随机切换，0.85 秒一个信号。把处理速度拉到极限，再回到正常节奏。</p>
-          <span class="drill-meta"><span>极限 0.85s</span><span>30s</span><span>全信号</span></span>
+          <span class="drill-meta"><span>极限 0.85s</span><span>60s</span><span>全信号</span></span>
           <button class="drill-load" type="button">载入训练 <span aria-hidden="true">→</span></button>
         </article>
       </div>
@@ -410,6 +421,6 @@
     <div class="noscript">训练器需要开启 JavaScript 才能运行。</div>
   </noscript>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
