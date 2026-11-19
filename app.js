@@ -28,13 +28,12 @@
   };
 
   const COLOR_NAME = { green: '绿', red: '红', blue: '蓝', amber: '黄' };
-  const ARROW_NAME = { up: '上', right: '右', down: '下', left: '左' };
-  const ARROW_GLYPH = { up: '↑', right: '→', down: '↓', left: '←' };
-  const KIND_NAME = { number: '数字', gesture: '手势', color: '颜色', arrow: '方向', math: '心算' };
+  const FOOT_NAME = { up: '上步', right: '右跨', down: '后撤', left: '左跨' };
+  const KIND_NAME = { number: '数字', gesture: '手势', color: '颜色', foot: '脚步', math: '心算' };
 
   const GESTURE_ACTIONS = { 1: 'crossover', 2: 'between', 3: 'behind', 4: 'double', 5: 'retreat' };
   const COLOR_ACTIONS = { green: 'crossover', red: 'between', blue: 'behind', amber: 'double' };
-  const ARROW_ACTIONS = { up: 'push', right: 'right', down: 'retreat', left: 'left' };
+  const FOOT_ACTIONS = { up: 'push', right: 'right', down: 'retreat', left: 'left' };
 
   const PACES = {
     slow:   { name: '慢', interval: 3000 },
@@ -44,11 +43,40 @@
   };
 
   const HISTORY_KEY = 'coacher.history.v1';
-  const ARROW_SVG = `
-    <svg viewBox="0 0 120 120" fill="none" aria-hidden="true">
-      <path d="M60 104V30" stroke="currentColor" stroke-width="9" stroke-linecap="round"/>
-      <path d="M34 58L60 32l26 26" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>`;
+  const LEGACY_MODE_NAMES = { arrow: '方向 · 箭头' };
+
+  // Top-down footprint: toes at the top, heel at the bottom.
+  const FOOT_SCALE = 0.52;
+  const FOOT_TOES = [
+    { cx: 33, cy: 52, rx: 13, ry: 14 },
+    { cx: 54, cy: 40, rx: 9, ry: 10 },
+    { cx: 67, cy: 39, rx: 8, ry: 9 },
+    { cx: 78, cy: 43, rx: 7, ry: 8 },
+    { cx: 86, cy: 51, rx: 6, ry: 7 },
+  ];
+  const FOOT_PALM = 'M38 68 C50 68 64 72 74 80 C84 88 88 100 86 112 C84 124 79 132 77 142 C75 152 77 162 80 172 C83 184 76 194 64 196 C52 198 42 192 40 181 C38 171 42 162 44 153 C46 144 44 137 41 129 C38 121 37 112 39 104 C41 96 40 88 36 82 C32 76 34 68 38 68 Z';
+  const FOOT_STANCES = {
+    up: {
+      aria: '上步站位：右脚向前跨出',
+      base: { x: 98, y: 132, rot: -2, foot: 'left' },
+      lead: { x: 146, y: 60, rot: 4, foot: 'right' },
+    },
+    right: {
+      aria: '右跨站位：右脚向右跨出',
+      base: { x: 98, y: 130, rot: -2, foot: 'left' },
+      lead: { x: 180, y: 130, rot: 12, foot: 'right' },
+    },
+    down: {
+      aria: '后撤站位：右脚向后撤步',
+      base: { x: 98, y: 124, rot: 2, foot: 'left' },
+      lead: { x: 146, y: 180, rot: -4, foot: 'right' },
+    },
+    left: {
+      aria: '左跨站位：左脚向左跨出',
+      base: { x: 142, y: 130, rot: 2, foot: 'right' },
+      lead: { x: 60, y: 130, rot: -12, foot: 'left' },
+    },
+  };
 
   /* ---------- helpers ---------- */
 
@@ -70,6 +98,11 @@
   function formatDate(ts) {
     const d = new Date(ts);
     return `${pad2(d.getMonth() + 1)}/${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  }
+
+  function modeName(key) {
+    if (MODES[key]) return MODES[key].name;
+    return LEGACY_MODE_NAMES[key] || key;
   }
 
   /* ---------- modes ---------- */
@@ -126,21 +159,21 @@
       },
     },
 
-    arrow: {
-      name: '方向 · 箭头',
-      tag: '四向',
-      idle: '箭头指哪，身体去哪',
-      note: '上 = 向前推进，下 = 后撤步，左 / 右 = 对应方向变向。',
+    foot: {
+      name: '脚步 · 站位',
+      tag: '四种站位',
+      idle: '看到站位，用对应的脚启动',
+      note: '上步 → 向前推进；右跨 → 右侧变向；后撤 → 后撤步；左跨 → 左侧变向。先看脚位，再做动作。',
       entries: [
-        { type: 'arrow', value: 'up', label: '↑', action: 'push' },
-        { type: 'arrow', value: 'right', label: '→', action: 'right' },
-        { type: 'arrow', value: 'down', label: '↓', action: 'retreat' },
-        { type: 'arrow', value: 'left', label: '←', action: 'left' },
+        { type: 'foot', value: 'up', label: '上步', action: 'push' },
+        { type: 'foot', value: 'right', label: '右跨', action: 'right' },
+        { type: 'foot', value: 'down', label: '后撤', action: 'retreat' },
+        { type: 'foot', value: 'left', label: '左跨', action: 'left' },
       ],
       generate() {
-        const keys = Object.keys(ARROW_ACTIONS);
+        const keys = Object.keys(FOOT_ACTIONS);
         const value = keys[randomInt(0, keys.length - 1)];
-        return { kind: 'arrow', value, action: ARROW_ACTIONS[value] };
+        return { kind: 'foot', value, action: FOOT_ACTIONS[value] };
       },
     },
 
@@ -170,16 +203,16 @@
   MODES.mix = {
     name: '混合 · 混沌',
     tag: '全信号',
-    idle: '数字、手势、颜色、方向随机切换',
-    note: '数字、手势、颜色和方向随机切换。没有规律，也不给预判。',
+    idle: '数字、手势、颜色、站位随机切换',
+    note: '数字、手势、颜色和站位随机切换。没有规律，也不给预判。',
     entries: [
       ...MODES.number.entries,
       ...MODES.gesture.entries,
       ...MODES.color.entries,
-      ...MODES.arrow.entries,
+      ...MODES.foot.entries,
     ],
     generate() {
-      const pool = [MODES.number, MODES.gesture, MODES.color, MODES.arrow];
+      const pool = [MODES.number, MODES.gesture, MODES.color, MODES.foot];
       return pool[randomInt(0, pool.length - 1)].generate();
     },
   };
@@ -293,12 +326,50 @@
     </svg>`;
   }
 
+  function footShape(foot) {
+    const toes = FOOT_TOES.map((toe) => (
+      `<ellipse class="foot-sole" fill="url(#footGold)" cx="${toe.cx}" cy="${toe.cy}" rx="${toe.rx}" ry="${toe.ry}"/>`
+    )).join('');
+    const shape = `<path class="foot-sole" fill="url(#footGold)" d="${FOOT_PALM}"/>${toes}`;
+
+    return foot === 'left'
+      ? `<g transform="translate(119 0) scale(-1 1)">${shape}</g>`
+      : shape;
+  }
+
+  function footPrint(print, className) {
+    return `<g class="foot-print ${className}" transform="translate(${print.x} ${print.y}) rotate(${print.rot}) scale(${FOOT_SCALE}) translate(-59.5 -112)">${footShape(print.foot)}</g>`;
+  }
+
+  function footMapSVG(value) {
+    const stance = FOOT_STANCES[value];
+
+    return `<svg viewBox="0 0 240 240" class="foot-map" aria-hidden="true">
+      <defs>
+        <linearGradient id="footGold" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fbefd2"/>
+          <stop offset=".45" stop-color="#f0d79a"/>
+          <stop offset="1" stop-color="#b98f44"/>
+        </linearGradient>
+        <radialGradient id="footGlow">
+          <stop offset="0" stop-color="#f0d79a" stop-opacity=".26"/>
+          <stop offset=".6" stop-color="#f0d79a" stop-opacity=".07"/>
+          <stop offset="1" stop-color="#f0d79a" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle class="foot-ring" cx="120" cy="120" r="104"/>
+      <path class="foot-axis" d="M20 120H220M120 20V220"/>
+      <circle class="foot-center-ring" cx="120" cy="120" r="17"/>
+      <circle class="foot-center" cx="120" cy="120" r="4.5"/>
+      <circle class="foot-glow" fill="url(#footGlow)" cx="${stance.lead.x}" cy="${stance.lead.y}" r="58"/>
+      ${footPrint(stance.base, 'is-base')}
+      ${footPrint(stance.lead, 'is-lead')}
+    </svg>`;
+  }
+
   function chipMarkup(entry) {
     if (entry.type === 'color') {
       return `<span class="chip"><i class="chip-dot" style="background:${COLOR_HEX[entry.value]}"></i>${entry.label}</span>`;
-    }
-    if (entry.type === 'arrow') {
-      return `<span class="chip chip--arrow" title="${ARROW_NAME[entry.value]}">${ARROW_GLYPH[entry.value]}</span>`;
     }
     return `<span class="chip">${entry.label}</span>`;
   }
@@ -334,8 +405,8 @@
       figure = `<div class="sig-hand">${handSVG(signal.value)}</div>`;
     } else if (signal.kind === 'color') {
       figure = `<div class="sig-color sig-color--${signal.value}" role="img" aria-label="${COLOR_NAME[signal.value]}灯"></div>`;
-    } else if (signal.kind === 'arrow') {
-      figure = `<div class="sig-arrow sig-arrow--${signal.value}" role="img" aria-label="向${ARROW_NAME[signal.value]}">${ARROW_SVG}</div>`;
+    } else if (signal.kind === 'foot') {
+      figure = `<div class="sig-foot sig-foot--${signal.value}" role="img" aria-label="${FOOT_STANCES[signal.value].aria}">${footMapSVG(signal.value)}</div>`;
     } else if (signal.kind === 'math') {
       figure = `<div class="sig-math" role="img" aria-label="${signal.value.a} 加 ${signal.value.b}">
         <span>${signal.value.a}</span><span class="op">+</span><span>${signal.value.b}</span>
@@ -512,8 +583,8 @@
         return `${signal.value} 指`;
       case 'color':
         return COLOR_NAME[signal.value];
-      case 'arrow':
-        return ARROW_NAME[signal.value];
+      case 'foot':
+        return `${FOOT_NAME[signal.value]}站位`;
       case 'math':
         return `${signal.value.a} 加 ${signal.value.b}`;
       default:
@@ -953,7 +1024,7 @@
       ${list.map((entry) => `
         <div class="history-row">
           <span class="num">${formatDate(entry.ts)}</span>
-          <span>${MODES[entry.mode] ? MODES[entry.mode].name : entry.mode}</span>
+          <span>${modeName(entry.mode)}</span>
           <span>${PACES[entry.pace] ? PACES[entry.pace].name : entry.pace}</span>
           <span class="num">${entry.elapsed != null ? `${entry.elapsed}s` : `${entry.duration}s`}</span>
           <span class="signals">${entry.signals}</span>

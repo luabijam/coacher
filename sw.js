@@ -1,11 +1,11 @@
 /* COACHER service worker — bump VERSION when deploying asset changes. */
-const VERSION = 'coacher-v3';
+const VERSION = 'coacher-v4';
 const BASE = new URL('./', self.location).href;
 const INDEX = new URL('index.html', BASE).href;
 const ASSETS = [
   INDEX,
-  new URL('styles.css?v=4', BASE).href,
-  new URL('app.js?v=4', BASE).href,
+  new URL('styles.css?v=5', BASE).href,
+  new URL('app.js?v=5', BASE).href,
   new URL('manifest.webmanifest', BASE).href,
   new URL('assets/favicon.svg', BASE).href,
   new URL('assets/icon-192.png', BASE).href,

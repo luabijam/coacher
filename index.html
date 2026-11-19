@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#08080a">
   <title>COACHER — 篮球信号反应训练器</title>
-  <meta name="description" content="随机数字、手势与颜色信号，训练篮球场上的阅读、决策与反应。受 Brandon Payne 神经认知训练方法启发。">
+  <meta name="description" content="随机数字、手势、颜色与脚步站位信号，训练篮球场上的阅读、决策与反应。受 Brandon Payne 神经认知训练方法启发。">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
   <a class="skip-link" href="#trainer">跳到训练器</a>
@@ -60,7 +60,7 @@
         <div class="hero-copy">
           <p class="eyebrow"><span class="pulse-dot"></span> NEUROCOGNITIVE BASKETBALL TRAINING</p>
           <h1>让比赛<br>慢下来<span class="accent">。</span></h1>
-          <p class="lede">随机数字、手势、颜色和方向，没有固定顺序，也不给你预判的时间。<br class="desktop-only">看到信号，立刻做动作——这就是把比赛变慢的方式。</p>
+          <p class="lede">随机数字、手势、颜色和脚步站位，没有固定顺序，也不给你预判的时间。<br class="desktop-only">看到信号，立刻做动作——这就是把比赛变慢的方式。</p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="#trainer">开始一组 <span class="arrow">→</span></a>
             <a class="btn btn-text" href="#method">了解训练原理</a>
@@ -111,8 +111,8 @@
           <button class="mode-tab" data-mode="color" role="tab" aria-selected="false">
             <span class="tab-index">03</span> 颜色 · 灯光
           </button>
-          <button class="mode-tab" data-mode="arrow" role="tab" aria-selected="false">
-            <span class="tab-index">04</span> 方向 · 箭头
+          <button class="mode-tab" data-mode="foot" role="tab" aria-selected="false">
+            <span class="tab-index">04</span> 脚步 · 站位
           </button>
           <button class="mode-tab" data-mode="math" role="tab" aria-selected="false">
             <span class="tab-index">05</span> 心算 · 两数之和
@@ -277,11 +277,11 @@
           <button class="drill-load" type="button">载入训练 <span aria-hidden="true">→</span></button>
         </article>
 
-        <article class="drill-card" data-preset data-mode="arrow" data-pace="fast" data-duration="60">
-          <span class="drill-top"><span>04 / DIRECTION</span><span>方向</span></span>
-          <h3>方向反应</h3>
-          <p>左、右、上、下四个箭头，对应四种移动。箭头只闪半秒，身体要先于判断启动。</p>
-          <span class="drill-meta"><span>快 1.3s</span><span>60s</span><span>四向</span></span>
+        <article class="drill-card" data-preset data-mode="foot" data-pace="fast" data-duration="60">
+          <span class="drill-top"><span>04 / FOOTWORK</span><span>脚步</span></span>
+          <h3>脚步站位</h3>
+          <p>上步、右跨、后撤、左跨四种站位，对应四种启动。看到脚位就动，别等看清再想。</p>
+          <span class="drill-meta"><span>快 1.3s</span><span>60s</span><span>四种站位</span></span>
           <button class="drill-load" type="button">载入训练 <span aria-hidden="true">→</span></button>
         </article>
 
@@ -296,7 +296,7 @@
         <article class="drill-card" data-preset data-mode="mix" data-pace="pro" data-duration="60">
           <span class="drill-top"><span>06 / CHAOS</span><span>混合</span></span>
           <h3>混沌过载</h3>
-          <p>数字、手势、颜色、方向随机切换，0.85 秒一个信号。把处理速度拉到极限，再回到正常节奏。</p>
+          <p>数字、手势、颜色、站位随机切换，0.85 秒一个信号。把处理速度拉到极限，再回到正常节奏。</p>
           <span class="drill-meta"><span>极限 0.85s</span><span>60s</span><span>全信号</span></span>
           <button class="drill-load" type="button">载入训练 <span aria-hidden="true">→</span></button>
         </article>
@@ -421,6 +421,6 @@
     <div class="noscript">训练器需要开启 JavaScript 才能运行。</div>
   </noscript>
 
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
