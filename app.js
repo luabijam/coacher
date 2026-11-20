@@ -646,6 +646,64 @@
     }
   }
 
+  /* ---------- screen wake lock ---------- */
+
+  let wakeLock = null;
+  let wakeLockPending = false;
+  let wakeLockNoticeShown = false;
+
+  function wantsWakeLock() {
+    return state.phase === 'countdown' || state.phase === 'running';
+  }
+
+  function wakeLockNotice(message) {
+    if (wakeLockNoticeShown) return;
+    wakeLockNoticeShown = true;
+    showToast(message);
+  }
+
+  async function requestWakeLock() {
+    if (!wantsWakeLock() || document.visibilityState !== 'visible') return;
+
+    if (!window.isSecureContext || !('wakeLock' in navigator)) {
+      wakeLockNotice(window.isSecureContext
+        ? '当前浏览器不支持屏幕常亮，请调高自动锁屏时间'
+        : '屏幕常亮需要 HTTPS 或安装到主屏幕，请调高自动锁屏时间');
+      return;
+    }
+
+    if (wakeLock || wakeLockPending) return;
+
+    wakeLockPending = true;
+    try {
+      const sentinel = await navigator.wakeLock.request('screen');
+      wakeLock = sentinel;
+      sentinel.addEventListener('release', () => {
+        if (wakeLock === sentinel) wakeLock = null;
+      });
+
+      // 用户可能在申请期间暂停或结束，拿到锁后立即释放。
+      if (!wantsWakeLock()) releaseWakeLock();
+    } catch (error) {
+      wakeLock = null;
+      wakeLockNotice('屏幕常亮开启失败，请调高自动锁屏时间');
+    } finally {
+      wakeLockPending = false;
+    }
+  }
+
+  function releaseWakeLock() {
+    const sentinel = wakeLock;
+    wakeLock = null;
+    if (!sentinel) return;
+
+    try {
+      sentinel.release();
+    } catch (error) {
+      /* ignore */
+    }
+  }
+
   /* ---------- session lifecycle ---------- */
 
   function clearSessionTimers() {
@@ -674,6 +732,7 @@
   function resetStage() {
     clearSessionTimers();
     hideCountdown();
+    releaseWakeLock();
 
     state.phase = 'idle';
     state.elapsed = 0;
@@ -784,6 +843,7 @@
     stageIdle.hidden = true;
     setControls();
     startCountdown();
+    requestWakeLock();
   }
 
   function startCountdown() {
@@ -819,6 +879,7 @@
     stageIdle.hidden = true;
 
     setControls();
+    requestWakeLock();
     emitSignal();
     state.nextSignalAt = PACES[state.pace].interval;
 
@@ -868,6 +929,7 @@
     signalSlot.classList.remove('is-dimmed');
     if (state.voice && canSpeak) window.speechSynthesis.cancel();
 
+    releaseWakeLock();
     setControls();
   }
 
@@ -881,6 +943,7 @@
     clearInterval(state.loopTimer);
     state.loopTimer = setInterval(tick, 50);
 
+    requestWakeLock();
     setControls();
   }
 
@@ -898,6 +961,7 @@
 
     if (state.voice && canSpeak) window.speechSynthesis.cancel();
 
+    releaseWakeLock();
     exitStageFocus();
 
     saveHistory();
@@ -1230,8 +1294,16 @@
   document.addEventListener('webkitfullscreenchange', syncFullscreenUI);
 
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden && state.phase === 'running') pauseSession();
+    if (document.hidden) {
+      if (state.phase === 'running') pauseSession();
+      releaseWakeLock();
+      return;
+    }
+
+    requestWakeLock();
   });
+
+  window.addEventListener('pagehide', releaseWakeLock);
 
   $$('[data-preset]').forEach((card) => {
     card.addEventListener('click', () => {
