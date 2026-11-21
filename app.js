@@ -36,8 +36,8 @@
   const FOOT_ACTIONS = { up: 'push', right: 'right', down: 'retreat', left: 'left' };
 
   const PACES = {
-    slow:   { name: '慢', interval: 2400 },
-    normal: { name: '标准', interval: 2000 },
+    slow:   { name: '慢', interval: 2000 },
+    normal: { name: '标准', interval: 1600 },
     fast:   { name: '快', interval: 1300 },
     pro:    { name: '极限', interval: 850 },
   };
