@@ -35,7 +35,7 @@
   const COLOR_ACTIONS = { green: 'crossover', red: 'between', blue: 'behind', amber: 'double' };
   const FOOT_ACTIONS = { up: 'push', right: 'right', down: 'retreat', left: 'left' };
 
-  const TENNIS_TASKS = { toss: '抛接', waist: '绕腰', eight: '8字' };
+  const TENNIS_TASKS = { toss: '自抛', waist: '绕腰', eight: '8字' };
 
   const PACES = {
     slow:   { name: '慢', interval: 2000 },
@@ -277,6 +277,13 @@
   const historyList = $('#historyList');
   const historyEmpty = $('#historyEmpty');
   const clearHistoryBtn = $('#clearHistory');
+  const partnerCount = $('#partnerCount');
+  const partnerSetup = $('#partnerSetup');
+  const partnerDots = $('#partnerDots');
+  const partnerCatchBtn = $('#partnerCatchBtn');
+  const partnerHandBtn = $('#partnerHandBtn');
+  const partnerResetBtn = $('#partnerResetBtn');
+  const partnerHint = $('#partnerHint');
   const toast = $('#toast');
 
   /* ---------- state ---------- */
@@ -1125,6 +1132,27 @@
     }, 2200);
   }
 
+  /* ---------- partner tennis drill ---------- */
+
+  const partnerDrill = { lead: 'right', count: 0, total: 8 };
+
+  function renderPartnerDrill() {
+    const done = partnerDrill.count >= partnerDrill.total;
+
+    partnerCount.textContent = String(partnerDrill.count);
+    partnerSetup.textContent = partnerDrill.lead === 'right'
+      ? '右手运球 · 搭档抛向左手'
+      : '左手运球 · 搭档抛向右手';
+    partnerDots.innerHTML = Array.from({ length: partnerDrill.total }, (_, index) => (
+      `<i class="${index < partnerDrill.count ? 'is-on' : ''}"></i>`
+    )).join('');
+    partnerCatchBtn.textContent = done ? '再来一组' : '接到一球';
+    partnerHint.textContent = done
+      ? '收球投篮：重运一次（pound）→ 收球 → 垂直起跳'
+      : '接满 8 次后收球投篮。';
+    partnerHint.classList.toggle('is-done', done);
+  }
+
   /* ---------- PWA install ---------- */
 
   const standaloneMode = window.matchMedia('(display-mode: standalone)').matches
@@ -1275,6 +1303,33 @@
     if (state.tennis) showToast(`副手网球：${TENNIS_TASKS[state.tennis]}；主手按信号做动作`);
   });
 
+  partnerCatchBtn.addEventListener('click', () => {
+    if (partnerDrill.count >= partnerDrill.total) {
+      partnerDrill.count = 0;
+      beep(720, 0.05, 0.04);
+      renderPartnerDrill();
+      return;
+    }
+
+    partnerDrill.count += 1;
+    const done = partnerDrill.count >= partnerDrill.total;
+    beep(done ? 1320 : 940, done ? 0.12 : 0.035, done ? 0.05 : 0.03);
+    if (done) speak('收球投篮');
+    renderPartnerDrill();
+  });
+
+  partnerHandBtn.addEventListener('click', () => {
+    partnerDrill.lead = partnerDrill.lead === 'right' ? 'left' : 'right';
+    partnerDrill.count = 0;
+    beep(760, 0.04, 0.03);
+    renderPartnerDrill();
+  });
+
+  partnerResetBtn.addEventListener('click', () => {
+    partnerDrill.count = 0;
+    renderPartnerDrill();
+  });
+
   voiceToggle.addEventListener('change', () => {
     state.voice = voiceToggle.checked;
 
@@ -1414,6 +1469,7 @@
     });
   }
 
+  renderPartnerDrill();
   renderLegend();
   syncPaceUI();
   syncDurationUI();
