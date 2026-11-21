@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
   <a class="skip-link" href="#trainer">跳到训练器</a>
@@ -126,7 +126,10 @@
           <div class="stage-column">
             <div class="stage" id="stage">
               <div class="stage-meta">
-                <span id="stageModeLabel">数字 · 奇偶</span>
+                <div class="stage-meta-left">
+                  <span id="stageModeLabel">数字 · 奇偶</span>
+                  <span class="stage-tennis" id="tennisBadge" hidden>副手 · 抛接</span>
+                </div>
                 <div class="stage-meta-right">
                   <span class="stage-clock" id="stageClock">01:00</span>
                   <button class="stage-fs stage-pause" id="stagePauseBtn" type="button" aria-label="暂停" hidden>
@@ -208,6 +211,11 @@
                     <input type="checkbox" id="voiceToggle">
                     <span class="switch-track"><span class="switch-thumb"></span></span>
                     <span class="switch-label">语音报信号</span>
+                  </label>
+                  <label class="switch">
+                    <input type="checkbox" id="tennisToggle">
+                    <span class="switch-track"><span class="switch-thumb"></span></span>
+                    <span class="switch-label">副手网球</span>
                   </label>
                 </div>
                 <span class="hint">空格键 开始 / 暂停</span>
@@ -299,6 +307,40 @@
           <h3>混沌过载</h3>
           <p>数字、手势、颜色、站位随机切换，0.85 秒一个信号。把处理速度拉到极限，再回到正常节奏。</p>
           <span class="drill-meta"><span>极限 0.85s</span><span>60s</span><span>全信号</span></span>
+          <button class="drill-load" type="button">载入训练 <span aria-hidden="true">→</span></button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section drills-section advanced-section" id="advanced">
+      <div class="section-head">
+        <p class="eyebrow">ADVANCED / DUAL-TASK</p>
+        <h2>进阶 · 双手双球</h2>
+        <p class="section-lede">副手抛接、绕腰或绕 8 字，主手按信号运球或做动作。先保证两只手都不乱，再提速；网球掉了先降一档，别停表。</p>
+      </div>
+
+      <div class="drills-grid">
+        <article class="drill-card" data-preset data-mode="color" data-pace="normal" data-duration="60" data-tennis="toss">
+          <span class="drill-top"><span>07 / DUAL</span><span>双任务</span></span>
+          <h3>抛接 + 灯光</h3>
+          <p>颜色亮起，主手做变向、胯下或背后，副手同时抛接网球。两只手都不许停，先求稳再求快。</p>
+          <span class="drill-meta"><span>副手抛接</span><span>标准 1.6s</span><span>60s</span></span>
+          <button class="drill-load" type="button">载入训练 <span aria-hidden="true">→</span></button>
+        </article>
+
+        <article class="drill-card" data-preset data-mode="foot" data-pace="fast" data-duration="60" data-tennis="waist">
+          <span class="drill-top"><span>08 / DUAL</span><span>双任务</span></span>
+          <h3>绕腰 + 站位</h3>
+          <p>副手让网球绕腰不停，主手按脚印站位启动。脚到位，球别掉；站位一乱就回到标准档。</p>
+          <span class="drill-meta"><span>副手绕腰</span><span>快 1.3s</span><span>60s</span></span>
+          <button class="drill-load" type="button">载入训练 <span aria-hidden="true">→</span></button>
+        </article>
+
+        <article class="drill-card" data-preset data-mode="mix" data-pace="pro" data-duration="60" data-tennis="eight">
+          <span class="drill-top"><span>09 / DUAL</span><span>双任务</span></span>
+          <h3>8字 + 混沌</h3>
+          <p>数字、手势、颜色、站位随机切换，副手绕 8 字不停。0.85 秒一个信号，把双手处理拉到极限。</p>
+          <span class="drill-meta"><span>副手8字</span><span>极限 0.85s</span><span>60s</span></span>
           <button class="drill-load" type="button">载入训练 <span aria-hidden="true">→</span></button>
         </article>
       </div>
@@ -422,6 +464,6 @@
     <div class="noscript">训练器需要开启 JavaScript 才能运行。</div>
   </noscript>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

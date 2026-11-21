@@ -804,6 +804,35 @@ h2 {
   letter-spacing: 0.12em;
 }
 
+.stage-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.stage-tennis {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border: 1px solid var(--line-gold);
+  border-radius: 999px;
+  color: var(--gold-bright);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.stage-tennis::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fbefd2, var(--gold) 65%, #8a7448 100%);
+  box-shadow: 0 0 8px rgba(214, 179, 106, 0.55);
+}
+
 .stage-meta-right {
   display: flex;
   align-items: center;
@@ -1896,6 +1925,21 @@ body.is-stage-focus {
   text-align: right;
 }
 
+.history-dual {
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+  border: 1px solid var(--line-gold);
+  border-radius: 4px;
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: 8px;
+  font-style: normal;
+  vertical-align: 1px;
+}
+
 .history-row .signals {
   color: var(--gold-bright);
   font-family: var(--mono);
@@ -2436,6 +2480,10 @@ body.is-stage-focus {
 }
 
 @media (max-width: 430px) {
+  .stage-tennis {
+    padding: 2px 7px;
+    font-size: 8px;
+  }
   .header-cta {
     padding: 0 13px;
     font-size: 11px;

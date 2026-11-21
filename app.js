@@ -35,6 +35,8 @@
   const COLOR_ACTIONS = { green: 'crossover', red: 'between', blue: 'behind', amber: 'double' };
   const FOOT_ACTIONS = { up: 'push', right: 'right', down: 'retreat', left: 'left' };
 
+  const TENNIS_TASKS = { toss: '抛接', waist: '绕腰', eight: '8字' };
+
   const PACES = {
     slow:   { name: '慢', interval: 2000 },
     normal: { name: '标准', interval: 1600 },
@@ -241,6 +243,8 @@
   const soundToggle = $('#soundToggle');
   const flashToggle = $('#flashToggle');
   const voiceToggle = $('#voiceToggle');
+  const tennisToggle = $('#tennisToggle');
+  const tennisBadge = $('#tennisBadge');
   const fullscreenBtn = $('#fullscreenBtn');
   const installBtn = $('#installBtn');
   const installModal = $('#installModal');
@@ -284,6 +288,7 @@
     sound: true,
     flash: true,
     voice: false,
+    tennis: null,
     phase: 'idle', // idle | countdown | running | paused | done
     elapsed: 0,
     total: 0,
@@ -981,6 +986,16 @@
 
   /* ---------- configuration ---------- */
 
+  function setTennis(task) {
+    state.tennis = TENNIS_TASKS[task] ? task : null;
+    tennisToggle.checked = Boolean(state.tennis);
+    tennisBadge.hidden = !state.tennis;
+
+    if (state.tennis) {
+      tennisBadge.textContent = `副手 · ${TENNIS_TASKS[state.tennis]}`;
+    }
+  }
+
   function setMode(mode) {
     if (!MODES[mode] || state.phase === 'countdown' || state.phase === 'running' || state.phase === 'paused') return;
 
@@ -1020,6 +1035,7 @@
       <span>${MODES[state.mode].name}</span>
       <span>${PACES[state.pace].name} · ${formatInterval(PACES[state.pace].interval)}s</span>
       <span>${(state.elapsed / 1000).toFixed(1)} 秒</span>
+      ${state.tennis ? `<span>副手网球 · ${TENNIS_TASKS[state.tennis]}</span>` : ''}
       ${state.duration === 0 ? '<span>无限 · 手动结束</span>' : ''}
     `;
 
@@ -1060,6 +1076,7 @@
       elapsed: Math.round((state.elapsed / 1000) * 10) / 10,
       signals: state.total,
       counts: { ...state.counts },
+      tennis: state.tennis,
     };
 
     const list = [entry, ...loadHistory()].slice(0, 12);
@@ -1088,7 +1105,7 @@
       ${list.map((entry) => `
         <div class="history-row">
           <span class="num">${formatDate(entry.ts)}</span>
-          <span>${modeName(entry.mode)}</span>
+          <span>${modeName(entry.mode)}${entry.tennis && TENNIS_TASKS[entry.tennis] ? `<i class="history-dual" title="副手网球 · ${TENNIS_TASKS[entry.tennis]}">双</i>` : ''}</span>
           <span>${PACES[entry.pace] ? PACES[entry.pace].name : entry.pace}</span>
           <span class="num">${entry.elapsed != null ? `${entry.elapsed}s` : `${entry.duration}s`}</span>
           <span class="signals">${entry.signals}</span>
@@ -1253,6 +1270,11 @@
     if (!state.flash) signalSlot.classList.remove('is-dimmed');
   });
 
+  tennisToggle.addEventListener('change', () => {
+    setTennis(tennisToggle.checked ? 'toss' : null);
+    if (state.tennis) showToast(`副手网球：${TENNIS_TASKS[state.tennis]}；主手按信号做动作`);
+  });
+
   voiceToggle.addEventListener('change', () => {
     state.voice = voiceToggle.checked;
 
@@ -1314,6 +1336,7 @@
       setMode(card.dataset.mode);
       setPace(card.dataset.pace);
       setDuration(Number(card.dataset.duration));
+      setTennis(card.dataset.tennis || null);
 
       $('#trainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
