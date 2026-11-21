@@ -284,6 +284,16 @@
   const partnerHandBtn = $('#partnerHandBtn');
   const partnerResetBtn = $('#partnerResetBtn');
   const partnerHint = $('#partnerHint');
+  const payneTabs = $$('.payne-tab');
+  const payneTag = $('#payneTag');
+  const payneTitle = $('#payneTitle');
+  const payneSetup = $('#payneSetup');
+  const payneSteps = $('#payneSteps');
+  const payneCount = $('#payneCount');
+  const payneTarget = $('#payneTarget');
+  const payneMakeBtn = $('#payneMakeBtn');
+  const payneResetBtn = $('#payneResetBtn');
+  const payneHint = $('#payneHint');
   const toast = $('#toast');
 
   /* ---------- state ---------- */
@@ -1153,6 +1163,119 @@
     partnerHint.classList.toggle('is-done', done);
   }
 
+  /* ---------- payne pickup drills ---------- */
+
+  const PAYNE_DRILLS = {
+    right: {
+      tag: 'BASE / RIGHT',
+      title: '右手收球',
+      setup: '右手重运一次（pound），右手收球，垂直脚步起跳投篮。',
+      steps: [
+        '右手重运一次（pound），球在身体右侧。',
+        '右脚前掌蹬地，右手把球收起来。',
+        '收球后直接垂直起跳，手肘对准篮筐。',
+        '落地保持平衡，再从下一个点开始。',
+      ],
+      target: 5,
+      hint: '5 球换一个点，从中距离开始。',
+      done: '完成 5 球，换下一个点。',
+    },
+    left: {
+      tag: 'BASE / LEFT',
+      title: '左手收球',
+      setup: '左手重运一次（pound），左手收球，垂直脚步起跳投篮。',
+      steps: [
+        '左手重运一次（pound），球在身体左侧。',
+        '左脚前掌蹬地，左手把球收起来。',
+        '收球后垂直起跳，手肘对准篮筐。',
+        '落地保持平衡，再换下一个点。',
+      ],
+      target: 5,
+      hint: '5 球换一个点，从中距离开始。',
+      done: '完成 5 球，换下一个点。',
+    },
+    triple: {
+      tag: 'RHYTHM / HANDS',
+      title: '单 · 双 · 三',
+      setup: '1 次运球左手收球，2 次运球右手收球，3 次运球左手收球，交替进行。',
+      steps: [
+        '单次：左手运球一次，左手收球投篮。',
+        '两次：右手运球两次，右手收球投篮。',
+        '三次：左手运球三次，左手收球投篮。',
+        '一组 3 球，做 3 组；收球手和运球手保持一致。',
+      ],
+      target: 3,
+      hint: '3 球一组，做 3 组。',
+      done: '完成一组，换下一组。',
+    },
+    range: {
+      tag: 'RANGE / 3 LEVELS',
+      title: '短 → 中 → 三分',
+      setup: '近距离 → 中距离 → 三分，每个距离 5 球，距离递增。',
+      steps: [
+        '近距离：先找收球和垂直起跳的感觉。',
+        '中距离：保持同样的收球节奏。',
+        '三分：脚在线上，蹬地发力，不要为了远而推。',
+        '每个距离 5 球，再退后一步。',
+      ],
+      target: 5,
+      hint: '5 球换一个距离。',
+      done: '完成 5 球，退到下一个距离。',
+    },
+    behind: {
+      tag: 'HANDLE / BEHIND',
+      title: '背后收球',
+      setup: '背后运球后收球，活步，保持面向篮筐。',
+      steps: [
+        '从底线侧手开始，背后运球一次。',
+        '收球时脚步不要站死，主动抢一步。',
+        '身体保持面向篮筐或边线方向。',
+        '收球后直接起跳投篮，左右两侧各 5 球。',
+      ],
+      target: 5,
+      hint: '左右两侧各 5 球。',
+      done: '完成 5 球，换另一侧。',
+    },
+    live: {
+      tag: 'LIVE / SCISSOR',
+      title: '活步收球',
+      setup: '活球运球 + 剪刀步进入短中距离，收球投篮。',
+      steps: [
+        '先做一次活球运球，让球和脚步都动起来。',
+        '剪刀步或交叉步抢到短中距离。',
+        '收球时脚掌蹬地，垂直起跳。',
+        '5 球换一侧；脚步不要停。',
+      ],
+      target: 5,
+      hint: '5 球换一侧。',
+      done: '完成 5 球，换另一侧。',
+    },
+  };
+
+  let payneCurrent = 'right';
+  let payneShots = 0;
+
+  function renderPayneDrill() {
+    const drill = PAYNE_DRILLS[payneCurrent] || PAYNE_DRILLS.right;
+    const done = payneShots >= drill.target;
+
+    payneTabs.forEach((tab) => {
+      const active = tab.dataset.payne === payneCurrent;
+      tab.classList.toggle('is-active', active);
+      tab.setAttribute('aria-selected', String(active));
+    });
+
+    payneTag.textContent = drill.tag;
+    payneTitle.textContent = drill.title;
+    payneSetup.textContent = drill.setup;
+    payneSteps.innerHTML = drill.steps.map((step) => `<li>${step}</li>`).join('');
+    payneCount.textContent = String(payneShots);
+    payneTarget.textContent = `/ ${drill.target}`;
+    payneMakeBtn.textContent = done ? '再来一组' : '完成一投';
+    payneHint.textContent = done ? drill.done : drill.hint;
+    payneHint.classList.toggle('is-done', done);
+  }
+
   /* ---------- PWA install ---------- */
 
   const standaloneMode = window.matchMedia('(display-mode: standalone)').matches
@@ -1301,6 +1424,36 @@
   tennisToggle.addEventListener('change', () => {
     setTennis(tennisToggle.checked ? 'toss' : null);
     if (state.tennis) showToast(`副手网球：${TENNIS_TASKS[state.tennis]}；主手按信号做动作`);
+  });
+
+  payneTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      payneCurrent = tab.dataset.payne;
+      payneShots = 0;
+      renderPayneDrill();
+    });
+  });
+
+  payneMakeBtn.addEventListener('click', () => {
+    const drill = PAYNE_DRILLS[payneCurrent] || PAYNE_DRILLS.right;
+
+    if (payneShots >= drill.target) {
+      payneShots = 0;
+      beep(720, 0.05, 0.04);
+      renderPayneDrill();
+      return;
+    }
+
+    payneShots += 1;
+    const done = payneShots >= drill.target;
+    beep(done ? 1320 : 940, done ? 0.1 : 0.03, done ? 0.05 : 0.03);
+    if (done) speak('完成一组');
+    renderPayneDrill();
+  });
+
+  payneResetBtn.addEventListener('click', () => {
+    payneShots = 0;
+    renderPayneDrill();
   });
 
   partnerCatchBtn.addEventListener('click', () => {
@@ -1469,6 +1622,7 @@
     });
   }
 
+  renderPayneDrill();
   renderPartnerDrill();
   renderLegend();
   syncPaceUI();

@@ -1860,6 +1860,140 @@ body.is-stage-focus {
   letter-spacing: 0.04em;
 }
 
+.payne-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.payne-tab {
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.payne-tab:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+.payne-tab.is-active {
+  color: var(--gold-bright);
+  border-color: var(--line-gold);
+  background: rgba(214, 179, 106, 0.08);
+}
+
+.payne-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 210px;
+  gap: 28px;
+  padding: 26px 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(168deg, rgba(255, 255, 255, 0.032), rgba(255, 255, 255, 0.006));
+}
+
+.payne-tag {
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+}
+
+.payne-main h3 {
+  margin-top: 8px;
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.payne-setup {
+  margin-top: 6px;
+  color: var(--gold-bright);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.payne-steps {
+  counter-reset: payne;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.payne-steps li {
+  display: flex;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.payne-steps li::before {
+  counter-increment: payne;
+  content: "0" counter(payne);
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: 9px;
+  line-height: 1.9;
+}
+
+.payne-side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 26px;
+  border-left: 1px solid var(--line);
+}
+
+.payne-count {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-family: var(--font);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.payne-count strong {
+  color: var(--gold-bright);
+  font-size: 46px;
+  font-weight: 600;
+  letter-spacing: -0.06em;
+}
+
+.payne-count span {
+  color: var(--muted-2);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.payne-side .btn {
+  width: 100%;
+  height: 40px;
+  justify-content: center;
+}
+
+.payne-hint {
+  color: var(--muted-2);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.payne-hint.is-done {
+  color: var(--gold-bright);
+}
+
 .drill-card {
   display: flex;
   flex-direction: column;
@@ -2486,6 +2620,22 @@ body.is-stage-focus {
 
   .partner-actions .btn-primary {
     flex: 1 1 100%;
+  }
+
+  .payne-tabs {
+    flex-wrap: wrap;
+  }
+
+  .payne-panel {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 22px;
+  }
+
+  .payne-side {
+    padding: 18px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
   }
 
   .header-inner {

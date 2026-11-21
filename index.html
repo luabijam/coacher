@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
   <a class="skip-link" href="#trainer">跳到训练器</a>
@@ -372,6 +372,43 @@
       </div>
     </section>
 
+    <section class="section drills-section payne-section" id="payne">
+      <div class="section-head">
+        <p class="eyebrow">PAYNE DRILLS / PICKUP &amp; SHOT</p>
+        <h2>投篮进阶 · 收球</h2>
+        <p class="section-lede">把视频里的 pickup 训练拆成六个练习：单手收球、单·双·三运球、短中三分、背后收球和活步收球。选一个，投完点「完成一投」计数；先做对，再加速。</p>
+      </div>
+
+      <div class="payne-tabs" role="tablist" aria-label="投篮练习">
+        <button class="payne-tab is-active" type="button" data-payne="right" role="tab" aria-selected="true" aria-controls="paynePanel">右手收球</button>
+        <button class="payne-tab" type="button" data-payne="left" role="tab" aria-selected="false" aria-controls="paynePanel">左手收球</button>
+        <button class="payne-tab" type="button" data-payne="triple" role="tab" aria-selected="false" aria-controls="paynePanel">单·双·三</button>
+        <button class="payne-tab" type="button" data-payne="range" role="tab" aria-selected="false" aria-controls="paynePanel">短→中→三分</button>
+        <button class="payne-tab" type="button" data-payne="behind" role="tab" aria-selected="false" aria-controls="paynePanel">背后收球</button>
+        <button class="payne-tab" type="button" data-payne="live" role="tab" aria-selected="false" aria-controls="paynePanel">活步收球</button>
+      </div>
+
+      <div class="payne-panel" id="paynePanel" role="tabpanel" aria-label="投篮练习详情">
+        <div class="payne-main">
+          <p class="payne-tag" id="payneTag">BASE / RIGHT</p>
+          <h3 id="payneTitle">右手收球</h3>
+          <p class="payne-setup" id="payneSetup">右手运球一次，右手收球，垂直脚步起跳投篮。</p>
+          <ol class="payne-steps" id="payneSteps">
+            <li>右手低运球一次，球在身体右侧。</li>
+            <li>右脚前掌蹬地，右手把球收起来。</li>
+            <li>收球后直接垂直起跳，手肘对准篮筐。</li>
+            <li>落地保持平衡，再从下一个点开始。</li>
+          </ol>
+        </div>
+        <div class="payne-side">
+          <p class="payne-count" aria-live="polite"><strong id="payneCount">0</strong><span id="payneTarget">/ 5</span></p>
+          <button class="btn btn-primary" id="payneMakeBtn" type="button">完成一投</button>
+          <button class="btn btn-ghost" id="payneResetBtn" type="button">重置</button>
+          <p class="payne-hint" id="payneHint">5 球换一个点，从中距离开始。</p>
+        </div>
+      </div>
+    </section>
+
     <section class="section method-section" id="method">
       <div class="section-head">
         <p class="eyebrow">THE METHOD</p>
@@ -490,6 +527,6 @@
     <div class="noscript">训练器需要开启 JavaScript 才能运行。</div>
   </noscript>
 
-  <script src="app.js?v=11"></script>
+  <script src="app.js?v=12"></script>
 </body>
 </html>
